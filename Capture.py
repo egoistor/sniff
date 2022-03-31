@@ -10,6 +10,8 @@ import threading
 
 # print(list_device)
 
+messageList = []
+
 def showDevice():
     list = []
     for device in WinPcapDevices.list_devices():
@@ -31,6 +33,8 @@ def packet_callback(win_pcap, param, header, pkt_data):
 
     t = threading.current_thread()
     print("capture thread:",t)
+    messageList.append(eth.data.__class__.__name__)
+    messageList.append(eth.data)
 
     # 取出分片信息
     # df = bool(packet.off & dpkt.ip.IP_DF)
@@ -70,10 +74,10 @@ class myThread (threading.Thread):
                 winpcap.run(callback=packet_callback)
 
     def stop(self):
-        # try:
-        self.pcap.stop()
-        # except:
-        #     print("出现了问题")
+        try:
+            self.pcap.stop()
+        except:
+            print("出现了问题")
 
 
 def beginCapture(thread):
@@ -83,6 +87,7 @@ def beginCapture(thread):
 def endCapture(thread):
     print("end thread:",thread)
     thread.stop()
+    return messageList
 
 
 

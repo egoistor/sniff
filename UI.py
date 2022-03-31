@@ -32,6 +32,7 @@ class Example(QMainWindow):
     captureFlag = False
     list = []
     deviceList = []
+    capList = []
     threadID = 0
     # thread = myThread(1,"caption")
 
@@ -57,11 +58,16 @@ class Example(QMainWindow):
             thread = myThread(1,"caption",self.nameofDevice)
             self.list.append(thread)
             beginCapture(thread)
+        else:
+            QMessageBox.information(self, "warning","请先停止抓包")
 
     def endCapture(self):
-        self.captureFlag = False
-        endCapture(self.list[self.threadID])
-        self.threadID = self.threadID + 1
+        if self.captureFlag == True:
+            self.captureFlag = False
+            self.capList = endCapture(self.list[self.threadID])
+            self.threadID = self.threadID + 1
+        else:
+            QMessageBox.information(self, "warning", "请先开始抓包")
 
     def get_item_store(self,arg1):
         weidge = QWidget()
@@ -103,6 +109,9 @@ class Example(QMainWindow):
     def clickedlist(self, item):
         #QMessageBox.information(self, "QListView", "你选择了: " + self.qList[qModelIndex.row()])
         print("点击的是：" + str(item.row()))
+        
+        self.DetailsView.setText(self.capList[item.row() * 2])
+        self.BinaryView.setText(str(self.capList[item.row() * 2 + 1]))
 
     def initUI(self):
 
@@ -115,8 +124,8 @@ class Example(QMainWindow):
         review = QLabel('Packet in Binary')
 
         #self.ListView = QListView()
-        DetailsView = QTextEdit()
-        BinaryView = QTextEdit()
+        self.DetailsView = QTextEdit()
+        self.BinaryView = QTextEdit()
 
         grid = QGridLayout()
         grid.setSpacing(10)
@@ -129,10 +138,10 @@ class Example(QMainWindow):
         grid.addWidget(self.listView, 1, 1)
 
         grid.addWidget(author, 2, 0)
-        grid.addWidget(DetailsView, 2, 1)
+        grid.addWidget(self.DetailsView, 2, 1)
 
         grid.addWidget(review, 3, 0)
-        grid.addWidget(BinaryView, 3, 1, 5, 1)
+        grid.addWidget(self.BinaryView, 3, 1, 5, 1)
 
         mainWidget = QWidget()
         mainWidget.setLayout(grid)
