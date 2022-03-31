@@ -23,11 +23,7 @@ import os
 from PyQt5.QtCore import QStringListModel
 from multiprocessing import Process
 
-# name_device = ""
-# CapturePid = 0
-#
-# def change():
-#     capture(name_device)
+
 
 
 class Example(QMainWindow):
@@ -35,6 +31,8 @@ class Example(QMainWindow):
     nameofDevice = ""
     captureFlag = False
     list = []
+    deviceList = []
+    threadID = 0
     # thread = myThread(1,"caption")
 
 
@@ -44,9 +42,9 @@ class Example(QMainWindow):
         self.initUI()
 
     def initNetList(self):
-        list = showDevice()
-        for i in range(len(list)):
-            self.combo.addItem(list[i])
+        deviceList = showDevice()
+        for i in range(len(deviceList)):
+            self.combo.addItem(deviceList[i])
 
 
     def deviceOnChoose(self,text):
@@ -62,7 +60,8 @@ class Example(QMainWindow):
 
     def endCapture(self):
         self.captureFlag = False
-        endCapture(self.list[0])
+        endCapture(self.list[self.threadID])
+        self.threadID = self.threadID + 1
 
     def get_item_store(self,arg1):
         weidge = QWidget()
