@@ -2,7 +2,7 @@ import os
 
 from winpcapy import WinPcapDevices, WinPcap
 from winpcapy import WinPcapUtils
-
+from dpkt.utils import mac_to_str, inet_to_str
 import dpkt
 import time
 import datetime
@@ -21,40 +21,15 @@ def showDevice():
 
 def packet_callback(win_pcap, param, header, pkt_data):
     eth = dpkt.ethernet.Ethernet(pkt_data)
-    # 判断是否为IP数据报
-    # if not isinstance(eth.data, dpkt.ip.IP):
-    #     print("Non IP packet type not supported ", eth.data.__class__.__name__)
-    #     return
-    #抓IP数据包
-    # print()
-    # packet = eth.data
-    # print(eth.data.__class__.__name__)
-    # print(packet)
 
     t = threading.current_thread()
-    print("capture thread:",t)
+    print('Ethernet Frame: ', mac_to_str(eth.src), mac_to_str(eth.dst), eth.type)
+
+    eth.pprint()
+
     messageList.append(eth.data.__class__.__name__)
-    messageList.append(eth.data)
+    messageList.append(eth)
 
-    # 取出分片信息
-    # df = bool(packet.off & dpkt.ip.IP_DF)
-    # mf = bool(packet.off & dpkt.ip.IP_MF)
-    # offset = packet.off & dpkt.ip.IP_OFFMASK
-
-    #输出数据包信息：time,src,dst,protocol,length,ttl,df,mf,offset,checksum
-    # output1 = {'time':time.strftime('%Y-%m-%d %H:%M:%S',(time.localtime()))}
-    # output2 = {'src':'%d.%d.%d.%d'%tuple(packet.src) , 'dst':'%d.%d.%d.%d'%tuple(packet.dst)}
-    # output3 = {'protocol':packet.p, 'len':packet.len, 'ttl':packet.ttl}
-    #output4 = {'df':df, 'mf':mf, 'offset':offset, 'checksum':packet.sum}
-
-    # print(output1)
-    # print(output2)
-    # print(output3)
-    #print(output4)
-
-
-
-    #WinPcapUtils.capture_on(pattern=name_device, callback=packet_callback)
 
 
 class myThread (threading.Thread):
@@ -66,6 +41,7 @@ class myThread (threading.Thread):
         self.pcap = WinPcap(name_device)
 
     def run(self):
+        file = open("test.txt", 'w').close()
         print(self.name_device)
         device_name, desc = WinPcapDevices.get_matching_device(self.name_device)
         if device_name is not None:

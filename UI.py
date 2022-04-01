@@ -1,18 +1,3 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
-"""
-Py40 PyQt5 tutorial
-
-This program creates a skeleton of
-a classic GUI application with a menubar,
-toolbar, statusbar, and a central widget.
-
-author: Jan Bodnar
-website: py40.com
-last edited: January 2015
-"""
-
 import sys
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon
@@ -53,18 +38,23 @@ class Example(QMainWindow):
 
 
     def beginCapture(self):
-        if self.captureFlag == False:
-            self.captureFlag = True
-            thread = myThread(1,"caption",self.nameofDevice)
-            self.list.append(thread)
-            beginCapture(thread)
+        if len(self.nameofDevice) ==0:
+            QMessageBox.information(self, "warning", "请先选择设备")
         else:
-            QMessageBox.information(self, "warning","请先停止抓包")
+            if self.captureFlag == False:
+                self.captureFlag = True
+                print(self.nameofDevice)
+                thread = myThread(1, "caption", self.nameofDevice)
+                self.list.append(thread)
+                beginCapture(thread)
+            else:
+                QMessageBox.information(self, "warning", "请先停止抓包")
 
     def endCapture(self):
         if self.captureFlag == True:
             self.captureFlag = False
             self.capList = endCapture(self.list[self.threadID])
+            #TODO-解包接口
             self.threadID = self.threadID + 1
         else:
             QMessageBox.information(self, "warning", "请先开始抓包")
@@ -109,7 +99,7 @@ class Example(QMainWindow):
     def clickedlist(self, item):
         #QMessageBox.information(self, "QListView", "你选择了: " + self.qList[qModelIndex.row()])
         print("点击的是：" + str(item.row()))
-        
+
         self.DetailsView.setText(self.capList[item.row() * 2])
         self.BinaryView.setText(str(self.capList[item.row() * 2 + 1]))
 
