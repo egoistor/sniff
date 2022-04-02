@@ -10,8 +10,6 @@ import threading
 
 # print(list_device)
 
-messageList = []
-
 def showDevice():
     list = []
     for device in WinPcapDevices.list_devices():
@@ -23,13 +21,9 @@ def packet_callback(win_pcap, param, header, pkt_data):
     eth = dpkt.ethernet.Ethernet(pkt_data)
 
     t = threading.current_thread()
-    print('Ethernet Frame: ', mac_to_str(eth.src), mac_to_str(eth.dst), eth.type)
+    #print('Ethernet Frame: ', mac_to_str(eth.src), mac_to_str(eth.dst), eth.type)
 
-    eth.pprint()
-
-    messageList.append(eth.data.__class__.__name__)
-    messageList.append(eth)
-
+    #eth.pprint()
 
 
 class myThread (threading.Thread):
@@ -63,7 +57,6 @@ def beginCapture(thread):
 def endCapture(thread):
     print("end thread:",thread)
     thread.stop()
-    return messageList
 
 
 

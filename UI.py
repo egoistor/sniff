@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, QThread, pyqtSignal ,QDateTime
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -8,17 +8,19 @@ import os
 from PyQt5.QtCore import QStringListModel
 from multiprocessing import Process
 
-
+from sniff.UtilThread import BackendThread
 
 
 class Example(QMainWindow):
 
-    nameofDevice = ""
+    nameOfDevice = ""
     captureFlag = False
+    reFlashFlag = False
     list = []
     deviceList = []
     capList = []
     threadID = 0
+    thread = BackendThread()
     # thread = myThread(1,"caption")
 
 
@@ -26,40 +28,61 @@ class Example(QMainWindow):
         super().__init__()
 
         self.initUI()
+        self.initFlashUI()
+
 
     def initNetList(self):
         deviceList = showDevice()
         for i in range(len(deviceList)):
             self.combo.addItem(deviceList[i])
 
+    # class FlashThread(threading.Thread):
+    #     def __init__(self, threadID):
+    #         threading.Thread.__init__(self)
+    #         self.threadID = threadID
+    #
+    #     def run(self):
+    #         dataLoad()
+
+
+    def initFlashUI(self):
+        # 注册信号处理函数
+        self.thread.update_date.connect(self.dataLoad)
+        # 启动线程
+        self.thread.start()
+
 
     def deviceOnChoose(self,text):
-        self.nameofDevice = text
+        self.nameOfDevice = text
 
 
     def beginCapture(self):
-        if len(self.nameofDevice) ==0:
+        if len(self.nameOfDevice) ==0:
             QMessageBox.information(self, "warning", "请先选择设备")
         else:
-            if self.captureFlag == False:
-                self.captureFlag = True
-                print(self.nameofDevice)
-                thread = myThread(1, "caption", self.nameofDevice)
-                self.list.append(thread)
-                beginCapture(thread)
+            if not self.captureFlag:
+                if not self.reFlashFlag:
+                    self.captureFlag = True
+                    self.thread.lock = True
+                    print(self.nameOfDevice)
+                    thread = myThread(1, "caption", self.nameOfDevice)
+                    self.list.append(thread)
+                    beginCapture(thread)
+                else:
+                    QMessageBox.information(self, "warning", "无法更新UI")
             else:
                 QMessageBox.information(self, "warning", "请先停止抓包")
 
     def endCapture(self):
-        if self.captureFlag == True:
+        if self.captureFlag:
             self.captureFlag = False
-            self.capList = endCapture(self.list[self.threadID])
-            #TODO-解包接口
+            self.thread.lock = False
+            endCapture(self.list[self.threadID])
             self.threadID = self.threadID + 1
         else:
             QMessageBox.information(self, "warning", "请先开始抓包")
 
-    def get_item_store(self,arg1):
+    def getItemStore(self,arg1):
         weidge = QWidget()
         hbox = QHBoxLayout()
 
@@ -86,15 +109,8 @@ class Example(QMainWindow):
         weidge.setLayout(hbox)
         return weidge
 
-    def dataLoad(self):
-        for i in range(20):
-            item = QListWidgetItem()  # 创建QListWidgetItem对象
-            item.setSizeHint(QSize(20, 45))  # 设置QListWidgetItem大小
-            widget = self.get_item_store(["64 0.8374638", "124.12.3.1", "22.3.1.4", "IPv6", "Info"])  # 调用上面的函数获取对应
-            self.listView.addItem(item)  # 添加item
-            self.listView.setItemWidget(item, widget)  # 为item设置widget
-
-
+    def dataLoad(self,data):
+        self.DetailsView.setText(data)
 
     def clickedlist(self, item):
         #QMessageBox.information(self, "QListView", "你选择了: " + self.qList[qModelIndex.row()])
@@ -109,6 +125,7 @@ class Example(QMainWindow):
         self.setWindowTitle('MySniff')#标题
         self.setWindowIcon(QIcon('icon/spotify.png'))#图标
 
+
         title = QLabel('Packet List')
         author = QLabel('Packet Details')
         review = QLabel('Packet in Binary')
@@ -121,7 +138,6 @@ class Example(QMainWindow):
         grid.setSpacing(10)
 
         self.listView = QtWidgets.QListWidget()  # 创建一个listview对象
-        self.dataLoad()
         self.listView.clicked.connect(self.clickedlist)  # listview 的点击事件
 
         grid.addWidget(title, 1, 0)
