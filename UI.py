@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtCore import QSize, QThread, pyqtSignal ,QDateTime
+from PyQt5.QtCore import QSize, QThread, pyqtSignal, QDateTime
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -12,17 +12,17 @@ from sniff.UtilThread import BackendThread
 
 
 class Example(QMainWindow):
-
     nameOfDevice = ""
     captureFlag = False
     reFlashFlag = False
     list = []
     deviceList = []
-    capList = []
+    cap_info_list = []
+
     threadID = 0
     thread = BackendThread()
-    # thread = myThread(1,"caption")
 
+    # thread = myThread(1,"caption")
 
     def __init__(self):
         super().__init__()
@@ -30,20 +30,10 @@ class Example(QMainWindow):
         self.initUI()
         self.initFlashUI()
 
-
     def initNetList(self):
         deviceList = showDevice()
         for i in range(len(deviceList)):
             self.combo.addItem(deviceList[i])
-
-    # class FlashThread(threading.Thread):
-    #     def __init__(self, threadID):
-    #         threading.Thread.__init__(self)
-    #         self.threadID = threadID
-    #
-    #     def run(self):
-    #         dataLoad()
-
 
     def initFlashUI(self):
         # 注册信号处理函数
@@ -51,13 +41,11 @@ class Example(QMainWindow):
         # 启动线程
         self.thread.start()
 
-
-    def deviceOnChoose(self,text):
+    def deviceOnChoose(self, text):
         self.nameOfDevice = text
 
-
     def beginCapture(self):
-        if len(self.nameOfDevice) ==0:
+        if len(self.nameOfDevice) == 0:
             QMessageBox.information(self, "warning", "请先选择设备")
         else:
             if not self.captureFlag:
@@ -82,7 +70,7 @@ class Example(QMainWindow):
         else:
             QMessageBox.information(self, "warning", "请先开始抓包")
 
-    def getItemStore(self,arg1):
+    def getItemStore(self, arg1):
         weidge = QWidget()
         hbox = QHBoxLayout()
 
@@ -102,18 +90,17 @@ class Example(QMainWindow):
         protocol.setText(arg1[3])
         hbox.addWidget(protocol)
 
-        Info = QLabel()
-        Info.setText(arg1[4])
-        hbox.addWidget(Info)
-
         weidge.setLayout(hbox)
         return weidge
 
-    def dataLoad(self,data):
-        self.DetailsView.setText(data)
+    def dataLoad(self, data):
+        str = ""
+        for i in range(len(data)):
+            str = str + data[i] + "\n"
+        self.DetailsView.setText(str)
 
     def clickedlist(self, item):
-        #QMessageBox.information(self, "QListView", "你选择了: " + self.qList[qModelIndex.row()])
+        # QMessageBox.information(self, "QListView", "你选择了: " + self.qList[qModelIndex.row()])
         print("点击的是：" + str(item.row()))
 
         self.DetailsView.setText(self.capList[item.row() * 2])
@@ -121,18 +108,16 @@ class Example(QMainWindow):
 
     def initUI(self):
 
-        self.setGeometry(300,100,1350,900)#窗体大小
-        self.setWindowTitle('MySniff')#标题
-        self.setWindowIcon(QIcon('icon/spotify.png'))#图标
-
+        self.setGeometry(300, 100, 1350, 900)  # 窗体大小
+        self.setWindowTitle('MySniff')  # 标题
+        self.setWindowIcon(QIcon('icon/spotify.png'))  # 图标
 
         title = QLabel('Packet List')
         author = QLabel('Packet Details')
         review = QLabel('Packet in Binary')
 
-        #self.ListView = QListView()
+        # self.ListView = QListView()
         self.DetailsView = QTextEdit()
-        self.BinaryView = QTextEdit()
 
         grid = QGridLayout()
         grid.setSpacing(10)
@@ -146,8 +131,8 @@ class Example(QMainWindow):
         grid.addWidget(author, 2, 0)
         grid.addWidget(self.DetailsView, 2, 1)
 
-        grid.addWidget(review, 3, 0)
-        grid.addWidget(self.BinaryView, 3, 1, 5, 1)
+        # grid.addWidget(review, 3, 0)
+        # grid.addWidget(self.BinaryView, 3, 1, 5, 1)
 
         mainWidget = QWidget()
         mainWidget.setLayout(grid)
@@ -180,11 +165,8 @@ class Example(QMainWindow):
         self.show()
 
 
-
-
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    print("主进程",os.getpid())
+    print("主进程", os.getpid())
     ex = Example()
     sys.exit(app.exec_())

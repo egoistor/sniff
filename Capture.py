@@ -19,11 +19,7 @@ def showDevice():
 
 def packet_callback(win_pcap, param, header, pkt_data):
     eth = dpkt.ethernet.Ethernet(pkt_data)
-
-    t = threading.current_thread()
-    #print('Ethernet Frame: ', mac_to_str(eth.src), mac_to_str(eth.dst), eth.type)
-
-    #eth.pprint()
+    eth.pprint()
 
 
 class myThread (threading.Thread):
@@ -64,4 +60,4 @@ if __name__ == '__main__':
     deviceList = showDevice()
     for i in range(len(deviceList)):
         print(deviceList[i])
-    capture(deviceList[5])
+
