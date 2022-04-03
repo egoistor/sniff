@@ -1,5 +1,5 @@
 import re
-
+import time
 def text_del():
     srcFiles = open('test.txt', 'r')
     begin_flag = False
@@ -76,8 +76,9 @@ def text_del():
 
 
 if __name__ == '__main__':
-    text_del()
-
+    #text_del()
+    s = str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    print(s)
 
     # line = "this hdr-biz 123 model server 456"
     # pattern = "model"

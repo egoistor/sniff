@@ -50,6 +50,8 @@ class Example(QMainWindow):
         else:
             if not self.captureFlag:
                 if not self.reFlashFlag:
+                    self.listView.clear()
+                    self.DetailsView.clear()
                     self.captureFlag = True
                     self.thread.lock = True
                     print(self.nameOfDevice)
@@ -74,37 +76,44 @@ class Example(QMainWindow):
         weidge = QWidget()
         hbox = QHBoxLayout()
 
-        time = QLabel()
-        time.setText(arg1[0])
-        hbox.addWidget(time)
+        t = QLabel()
+        s = str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+        t.setText(s)
+        hbox.addWidget(t)
 
         source = QLabel()
         source.setText(arg1[1])
         hbox.addWidget(source)
 
         Destination = QLabel()
-        Destination.setText(arg1[2])
+        Destination.setText(arg1[0])
         hbox.addWidget(Destination)
 
         protocol = QLabel()
-        protocol.setText(arg1[3])
+        protocol.setText(arg1[2])
         hbox.addWidget(protocol)
 
         weidge.setLayout(hbox)
         return weidge
 
     def dataLoad(self, data):
-        str = ""
-        for i in range(len(data)):
-            str = str + data[i] + "\n"
-        self.DetailsView.setText(str)
+        l_item = data[0]
+        item = QListWidgetItem()  # 创建QListWidgetItem对象
+        item.setSizeHint(QSize(20, 45))  # 设置QListWidgetItem大小
+        widget = self.getItemStore(l_item)  # 调用上面的函数获取对应
+        self.listView.addItem(item)  # 添加item
+        self.listView.setItemWidget(item, widget)  # 为item设置widget
+        self.cap_info_list.append(data[1])
+
 
     def clickedlist(self, item):
         # QMessageBox.information(self, "QListView", "你选择了: " + self.qList[qModelIndex.row()])
         print("点击的是：" + str(item.row()))
-
-        self.DetailsView.setText(self.capList[item.row() * 2])
-        self.BinaryView.setText(str(self.capList[item.row() * 2 + 1]))
+        cap_info = self.cap_info_list[item.row()]
+        s = ""
+        for i in range(len(cap_info)):
+            s = s + cap_info[i] + "\n"
+        self.DetailsView.setText(s)
 
     def initUI(self):
 
